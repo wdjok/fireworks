@@ -1,10 +1,6 @@
 'use strict';
 console.clear();
 
-// This is a prime example of what starts out as a simple project
-// and snowballs way beyond its intended size. It's a little clunky
-// reading/working on this single file, but here it is anyways :)
-
 const IS_MOBILE = window.innerWidth <= 640;
 const IS_DESKTOP = window.innerWidth > 800;
 const IS_HEADER = IS_DESKTOP && window.innerHeight < 300;
@@ -132,7 +128,7 @@ const store = {
 					: '2', // Mobile default
 			autoLaunch: true,
 			finale: false,
-			skyLighting: SKY_LIGHT_NORMAL + '',
+			skyLighting: SKY_LIGHT_NONE + '',
 			hideControls: IS_HEADER,
 			longExposure: false,
 			scaleFactor: getDefaultScaleFactor()
@@ -294,52 +290,6 @@ const finaleSelector = () => store.state.config.finale;
 const skyLightingSelector = () => +store.state.config.skyLighting;
 const scaleFactorSelector = () => store.state.config.scaleFactor;
 
-
-
-// Help Content
-const helpContent = {
-	shellType: {
-		header: '烟花类型',
-		body: '燃放的烟花类型。选择「随机」以获得更好的焰火样式。'
-	},
-	shellSize: {
-		header: '烟花大小',
-		body: '燃放烟花所生成的焰火的大小。更大的烟花具有更大的焰火范围和更多的子焰数量，但也需要消耗更多的算力，并可能导致渲染卡顿。'
-	},
-	quality: {
-		header: '渲染质量',
-		body: '燃放烟花所生成的焰火的渲染质量。高质量会增加子焰的生成数量，并可能导致渲染卡顿。如果焰火动画不流畅，可以尝试降低渲染质量。'
-	},
-	skyLighting: {
-		header: '照亮天空',
-		body: '燃放烟花所生成的焰火将会照亮天空。如果天空看起来太亮，可以将其设置为「较暗」或「关闭」。'
-	},
-	scaleFactor: {
-		header: '天空缩放',
-		body: '缩放整片天空在屏幕上显示的区域大小，对于在小尺寸设备上燃放的较大的烟花，适当缩小比例会更便于观赏。'
-	},
-	autoLaunch: {
-		header: '自动燃放',
-		body: '自动燃放烟花，和好友一起坐下来欣赏烟花表演吧！禁用以手动控制烟花燃放。'
-	},
-	finaleMode: {
-		header: '同时燃放',
-		body: '同时燃放更多烟花，但可能会导致渲染卡顿。需要同时开启「自动燃放」。'
-	},
-	hideControls: {
-		header: '隐藏按钮',
-		body: '隐藏屏幕顶部的按钮控件，可以获得沉浸式的燃放体验，或者进行屏幕截图。隐藏后，点按屏幕右上角可以重新打开唤出菜单。'
-	},
-	fullscreen: {
-		header: '全屏体验',
-		body: '切换全屏模式以获得更加沉浸式的燃放体验。'
-	},
-	longExposure: {
-		header: '保留光轨',
-		body: '在天空中保留焰火的轨迹，类似于相机 B 门或多张堆栈。'
-	}
-};
-
 const nodeKeyToHelpKey = {
 	shellTypeLabel: 'shellType',
 	shellSizeLabel: 'shellSize',
@@ -387,13 +337,6 @@ const appNodes = {
 	fullscreenLabel: '.fullscreen-label',
 	longExposure: '.long-exposure',
 	longExposureLabel: '.long-exposure-label',
-	
-	// Help UI
-	helpModal: '.help-modal',
-	helpModalOverlay: '.help-modal__overlay',
-	helpModalHeader: '.help-modal__header',
-	helpModalBody: '.help-modal__body',
-	helpModalCloseBtn: '.help-modal__close-btn'
 };
 
 // Convert appNodes selectors to dom nodes
@@ -431,12 +374,6 @@ function renderApp(state) {
 	appNodes.scaleFactor.value = state.config.scaleFactor.toFixed(2);
 	
 	appNodes.menuInnerWrap.style.opacity = state.openHelpTopic ? 0.12 : 1;
-	appNodes.helpModal.classList.toggle('active', !!state.openHelpTopic);
-	if (state.openHelpTopic) {
-		const { header, body } = helpContent[state.openHelpTopic];
-		appNodes.helpModalHeader.textContent = header;
-		appNodes.helpModalBody.textContent = body;
-	}
 }
 
 store.subscribe(renderApp);
@@ -495,16 +432,6 @@ Object.keys(nodeKeyToHelpKey).forEach(nodeKey => {
 		store.setState({ openHelpTopic: helpKey });
 	});
 });
-
-appNodes.helpModalCloseBtn.addEventListener('click', () => {
-	store.setState({ openHelpTopic: null });
-});
-
-appNodes.helpModalOverlay.addEventListener('click', () => {
-	store.setState({ openHelpTopic: null });
-});
-
-
 
 // Constant derivations
 const COLOR_NAMES = Object.keys(COLOR);
@@ -618,7 +545,6 @@ const ghostShell = (size=1) => {
 	return shell;
 };
 
-
 const strobeShell = (size=1) => {
 	const color = randomColor({ limitWhite: true });
 	return {
@@ -636,7 +562,6 @@ const strobeShell = (size=1) => {
 		pistilColor: makePistilColor(color)
 	};
 };
-
 
 const palmShell = (size=1) => {
 	const color = randomColor();
@@ -806,7 +731,7 @@ function init() {
 	
 	// Populate dropdowns
 	function setOptionsForSelect(node, options) {
-		node.innerHTML = options.reduce((acc, opt) => acc += `<option value="${opt.value}">${opt.label}</option>`, '');
+		node.innerHTML = options.reduce((acc, opt) => acc += `<option value="${opt.value}">${opt}</option>`, '');
 	}
 
 	// shell type
@@ -1161,25 +1086,9 @@ function handlePointerMove(event) {
 	}
 }
 
-function handleKeydown(event) {
-	// P
-	if (event.keyCode === 80) {
-		togglePause();
-	}
-	// O
-	else if (event.keyCode === 79) {
-		toggleMenu();
-	}
-	// Esc
-	else if (event.keyCode === 27) {
-		toggleMenu(false);
-	}
-}
-
 mainStage.addEventListener('pointerstart', handlePointerStart);
 mainStage.addEventListener('pointerend', handlePointerEnd);
 mainStage.addEventListener('pointermove', handlePointerMove);
-window.addEventListener('keydown', handleKeydown);
 
 
 // Account for window resize and custom scale changes.
@@ -2291,9 +2200,11 @@ function setLoadingStatus(status) {
 if (IS_HEADER) {
 	init();
 } else {
-	// Allow status to render, then preload assets and start app.
-	setLoadingStatus('点燃引线中……');
-	setTimeout(() => {
+	// Show "点击发射" and wait for user interaction
+	setLoadingStatus('点击发射');
+	document.querySelector('.loading-init').addEventListener('click', () => {
+		store.setState({ soundEnabled: true });
+		setLoadingStatus('');
 		soundManager.preload()
 		.then(
 			init,
@@ -2304,5 +2215,5 @@ if (IS_HEADER) {
 				return Promise.reject(reason);
 			}
 		);
-	}, 0);
+	});
 }
