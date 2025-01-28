@@ -1065,25 +1065,17 @@ function handlePointerStart(event) {
 	
 	if (!isRunning()) return;
 	
-	if (updateSpeedFromEvent(event)) {
-		isUpdatingSpeed = true;
-	}
-	else if (event.onCanvas) {
+	if (event.onCanvas) {
 		launchShellFromConfig(event);
 	}
 }
 
 function handlePointerEnd(event) {
 	activePointerCount--;
-	isUpdatingSpeed = false;
 }
 
 function handlePointerMove(event) {
 	if (!isRunning()) return;
-	
-	if (isUpdatingSpeed) {
-		updateSpeedFromEvent(event);
-	}
 }
 
 mainStage.addEventListener('pointerstart', handlePointerStart);
@@ -1119,33 +1111,11 @@ let currentFrame = 0;
 let speedBarOpacity = 0;
 let autoLaunchTime = 0;
 
-function updateSpeedFromEvent(event) {
-	if (isUpdatingSpeed || event.y >= mainStage.height - 44) {
-		// On phones it's hard to hit the edge pixels in order to set speed at 0 or 1, so some padding is provided to make that easier.
-		const edge = 16;
-		const newSpeed = (event.x - edge) / (mainStage.width - edge * 2);
-		simSpeed = Math.min(Math.max(newSpeed, 0), 1);
-		// show speed bar after an update
-		speedBarOpacity = 1;
-		// If we updated the speed, return true
-		return true;
-	}
-	// Return false if the speed wasn't updated
-	return false;
-}
-
-
-// Extracted function to keep `update()` optimized
 function updateGlobals(timeStep, lag) {
 	currentFrame++;
 	
 	// Always try to fade out speed bar
-	if (!isUpdatingSpeed) {
-	speedBarOpacity -= lag / 30; // half a second
-		if (speedBarOpacity < 0) {
-			speedBarOpacity = 0;
-		}
-	}
+	speedBarOpacity = 0;
 	
 	// auto launch shells
 	if (store.state.config.autoLaunch) {
@@ -1346,16 +1316,6 @@ function render(speed) {
 		});
 		trailsCtx.stroke();
 	});
-	
-	
-	// Render speed bar if visible
-	if (speedBarOpacity) {
-		const speedBarHeight = 6;
-		mainCtx.globalAlpha = speedBarOpacity;
-		mainCtx.fillStyle = COLOR.Blue;
-		mainCtx.fillRect(0, height - speedBarHeight, width * simSpeed, speedBarHeight);
-		mainCtx.globalAlpha = 1;
-	}
 	
 	
 	trailsCtx.setTransform(1, 0, 0, 1, 0, 0);
