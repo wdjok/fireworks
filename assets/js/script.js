@@ -309,10 +309,8 @@ const appNodes = {
 	stageContainer: '.stage-container',
 	canvasContainer: '.canvas-container',
 	controls: '.controls',
-	menu: '.menu',
-	menuInnerWrap: '.menu__inner-wrap',
-	pauseBtn: '.pause-btn',
-	pauseBtnSVG: '.pause-btn use',
+	// pauseBtn: '.pause-btn',
+	// pauseBtnSVG: '.pause-btn use',
 	soundBtn: '.sound-btn',
 	soundBtnSVG: '.sound-btn use',
 	shellType: '.shell-type',
@@ -351,29 +349,11 @@ if (!fullscreenEnabled()) {
 
 // First render is called in init()
 function renderApp(state) {
-	const pauseBtnIcon = `#icon-${state.paused ? 'play' : 'pause'}`;
 	const soundBtnIcon = `#icon-sound-${soundEnabledSelector() ? 'on' : 'off'}`;
-	appNodes.pauseBtnSVG.setAttribute('href', pauseBtnIcon);
-	appNodes.pauseBtnSVG.setAttribute('xlink:href', pauseBtnIcon);
 	appNodes.soundBtnSVG.setAttribute('href', soundBtnIcon);
 	appNodes.soundBtnSVG.setAttribute('xlink:href', soundBtnIcon);
 	appNodes.controls.classList.toggle('hide', state.menuOpen || state.config.hideControls);
 	appNodes.canvasContainer.classList.toggle('blur', state.menuOpen);
-	appNodes.menu.classList.toggle('hide', !state.menuOpen);
-	appNodes.finaleModeFormOption.style.opacity = state.config.autoLaunch ? 1 : 0.32;
-	
-	appNodes.quality.value = state.config.quality;
-	appNodes.shellType.value = state.config.shell;
-	appNodes.shellSize.value = state.config.size;
-	appNodes.autoLaunch.checked = state.config.autoLaunch;
-	appNodes.finaleMode.checked = state.config.finale;
-	appNodes.skyLighting.value = state.config.skyLighting;
-	appNodes.hideControls.checked = state.config.hideControls;
-	appNodes.fullscreen.checked = state.fullscreen;
-	appNodes.longExposure.checked = state.config.longExposure;
-	appNodes.scaleFactor.value = state.config.scaleFactor.toFixed(2);
-	
-	appNodes.menuInnerWrap.style.opacity = state.openHelpTopic ? 0.12 : 1;
 }
 
 store.subscribe(renderApp);
@@ -409,29 +389,6 @@ function getConfigFromDOM() {
 		scaleFactor: parseFloat(appNodes.scaleFactor.value)
 	};
 };
-
-const updateConfigNoEvent = () => updateConfig();
-appNodes.quality.addEventListener('input', updateConfigNoEvent);
-appNodes.shellType.addEventListener('input', updateConfigNoEvent);
-appNodes.shellSize.addEventListener('input', updateConfigNoEvent);
-appNodes.autoLaunch.addEventListener('click', () => setTimeout(updateConfig, 0));
-appNodes.finaleMode.addEventListener('click', () => setTimeout(updateConfig, 0));
-appNodes.skyLighting.addEventListener('input', updateConfigNoEvent);
-appNodes.longExposure.addEventListener('click', () => setTimeout(updateConfig, 0));
-appNodes.hideControls.addEventListener('click', () => setTimeout(updateConfig, 0));
-appNodes.fullscreen.addEventListener('click', () => setTimeout(toggleFullscreen, 0));
-// Changing scaleFactor requires triggering resize handling code as well.
-appNodes.scaleFactor.addEventListener('input', () => {
-	updateConfig();
-	handleResize();
-});
-
-Object.keys(nodeKeyToHelpKey).forEach(nodeKey => {
-	const helpKey = nodeKeyToHelpKey[nodeKey];
-	appNodes[nodeKey].addEventListener('click', () => {
-		store.setState({ openHelpTopic: helpKey });
-	});
-});
 
 // Constant derivations
 const COLOR_NAMES = Object.keys(COLOR);
@@ -729,39 +686,6 @@ function init() {
 	document.querySelector('.loading-init').remove();
 	appNodes.stageContainer.classList.remove('remove');
 	
-	// Populate dropdowns
-	function setOptionsForSelect(node, options) {
-		node.innerHTML = options.reduce((acc, opt) => acc += `<option value="${opt.value}">${opt}</option>`, '');
-	}
-
-	// shell type
-	let options = '';
-	shellNames.forEach(opt => options += `<option value="${opt}">${opt}</option>`);
-	appNodes.shellType.innerHTML = options;
-	// shell size
-	options = '';
-	['3"', '4"', '6"', '8"', '12"', '16"'].forEach((opt, i) => options += `<option value="${i}">${opt}</option>`);
-	appNodes.shellSize.innerHTML = options;
-	
-	setOptionsForSelect(appNodes.quality, [
-		{ label: '低', value: QUALITY_LOW },
-		{ label: '中', value: QUALITY_NORMAL },
-		{ label: '高', value: QUALITY_HIGH }
-	]);
-	
-	setOptionsForSelect(appNodes.skyLighting, [
-		{ label: '关闭', value: SKY_LIGHT_NONE },
-		{ label: '较暗', value: SKY_LIGHT_DIM },
-		{ label: '正常', value: SKY_LIGHT_NORMAL }
-	]);
-	
-	// 0.9 is mobile default
-	setOptionsForSelect(
-		appNodes.scaleFactor,
-		[0.5, 0.62, 0.75, 0.9, 1.0, 1.5, 2.0]
-		.map(value => ({ value: value.toFixed(2), label: `${value*100}%` }))
-	);
-	
 	// Begin simulation
 	togglePause(false);
 	
@@ -771,6 +695,7 @@ function init() {
 	// Apply initial config
 	configDidUpdate();
 }
+
 
 function fitShellPositionInBoundsH(position) {
 	const edge = 0.18;
@@ -804,6 +729,7 @@ function getRandomShellSize() {
 	};
 }
 
+
 // Launches a shell from a user pointer event, based on state.config
 function launchShellFromConfig(event) {
 	const shell = new Shell(shellFromConfig(shellSizeSelector()));
@@ -816,7 +742,10 @@ function launchShellFromConfig(event) {
 	);
 }
 
+
 // Sequences
+// -----------
+
 function seqRandomShell() {
 	const size = getRandomShellSize();
 	const shell = new Shell(shellFromConfig(size.size));
@@ -1044,16 +973,19 @@ function handlePointerStart(event) {
 	const btnSize = 50;
 	
 	if (event.y < btnSize) {
-		if (event.x < btnSize) {
-			togglePause();
-			return;
-		}
+		// if (event.x < btnSize) {
+		// 	togglePause();
+		// 	return;
+		// }
 		if (event.x > mainStage.width/2 - btnSize/2 && event.x < mainStage.width/2 + btnSize/2) {
-			toggleSound();
-			return;
-		}
-		if (event.x > mainStage.width - btnSize) {
-			toggleMenu();
+			const soundBtn = document.querySelector('.sound-btn');
+			if (!soundBtn.classList.contains('disabled')) {
+				toggleSound();
+				soundBtn.classList.add('disabled');
+				setTimeout(() => {
+					soundBtn.style.display = 'none';
+				}, 1000);
+			}
 			return;
 		}
 	}
@@ -1120,6 +1052,7 @@ function updateGlobals(timeStep, lag) {
 		}
 	}
 }
+
 
 function update(frameTime, lag) {
 	if (!isRunning()) return;
@@ -1384,6 +1317,7 @@ function createParticleArc(start, arcLength, count, randomness, particleFactory)
 		}
 	}
 }
+
 
 /**
  * Helper used to create a spherical burst of particles.
@@ -2140,11 +2074,7 @@ const soundManager = {
 	}
 };
 
-
-
-
 // Kick things off.
-
 function setLoadingStatus(status) {
 	document.querySelector('.loading-init__status').textContent = status;
 }
@@ -2152,12 +2082,10 @@ function setLoadingStatus(status) {
 // CodePen profile header doesn't need audio, just initialize.
 if (IS_HEADER) {
 	init();
-} else {
-	// Show "点击发射" and wait for user interaction
-	setLoadingStatus('点击发射');
-	document.querySelector('.loading-init').addEventListener('click', () => {
-		store.setState({ soundEnabled: true });
-		setLoadingStatus('');
+} else
+{
+	setLoadingStatus('点燃引线中...');
+	setTimeout(() => {
 		soundManager.preload()
 		.then(
 			init,
