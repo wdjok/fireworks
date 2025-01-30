@@ -696,7 +696,6 @@ function init() {
 	configDidUpdate();
 }
 
-
 function fitShellPositionInBoundsH(position) {
 	const edge = 0.18;
 	return (1 - edge*2) * position + edge;
@@ -729,7 +728,6 @@ function getRandomShellSize() {
 	};
 }
 
-
 // Launches a shell from a user pointer event, based on state.config
 function launchShellFromConfig(event) {
 	const shell = new Shell(shellFromConfig(shellSizeSelector()));
@@ -742,10 +740,7 @@ function launchShellFromConfig(event) {
 	);
 }
 
-
 // Sequences
-// -----------
-
 function seqRandomShell() {
 	const size = getRandomShellSize();
 	const shell = new Shell(shellFromConfig(size.size));
@@ -1053,7 +1048,6 @@ function updateGlobals(timeStep, lag) {
 	}
 }
 
-
 function update(frameTime, lag) {
 	if (!isRunning()) return;
 	
@@ -1317,7 +1311,6 @@ function createParticleArc(start, arcLength, count, randomness, particleFactory)
 		}
 	}
 }
-
 
 /**
  * Helper used to create a spherical burst of particles.
