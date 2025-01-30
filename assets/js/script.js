@@ -309,8 +309,10 @@ const appNodes = {
 	stageContainer: '.stage-container',
 	canvasContainer: '.canvas-container',
 	controls: '.controls',
-	// pauseBtn: '.pause-btn',
-	// pauseBtnSVG: '.pause-btn use',
+	menu: '.menu',
+	menuInnerWrap: '.menu__inner-wrap',
+	pauseBtn: '.pause-btn',
+	pauseBtnSVG: '.pause-btn use',
 	soundBtn: '.sound-btn',
 	soundBtnSVG: '.sound-btn use',
 	shellType: '.shell-type',
@@ -349,7 +351,10 @@ if (!fullscreenEnabled()) {
 
 // First render is called in init()
 function renderApp(state) {
+	const pauseBtnIcon = `#icon-${state.paused ? 'play' : 'pause'}`;
 	const soundBtnIcon = `#icon-sound-${soundEnabledSelector() ? 'on' : 'off'}`;
+	appNodes.pauseBtnSVG.setAttribute('href', pauseBtnIcon);
+	appNodes.pauseBtnSVG.setAttribute('xlink:href', pauseBtnIcon);
 	appNodes.soundBtnSVG.setAttribute('href', soundBtnIcon);
 	appNodes.soundBtnSVG.setAttribute('xlink:href', soundBtnIcon);
 	appNodes.controls.classList.toggle('hide', state.menuOpen || state.config.hideControls);
@@ -686,6 +691,11 @@ function init() {
 	document.querySelector('.loading-init').remove();
 	appNodes.stageContainer.classList.remove('remove');
 	
+	// Populate dropdowns
+	function setOptionsForSelect(node, options) {
+		node.innerHTML = options.reduce((acc, opt) => acc += `<option value="${opt.value}">${opt}</option>`, '');
+	}
+	
 	// Begin simulation
 	togglePause(false);
 	
@@ -694,15 +704,6 @@ function init() {
 	
 	// Apply initial config
 	configDidUpdate();
-
-	// iOS audio context fix
-	if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
-		document.body.addEventListener('touchend', () => {
-			if (soundManager.ctx.state !== 'running') {
-				soundManager.ctx.resume();
-			}
-		}, false);
-	}
 }
 
 
@@ -982,19 +983,16 @@ function handlePointerStart(event) {
 	const btnSize = 50;
 	
 	if (event.y < btnSize) {
-		// if (event.x < btnSize) {
-		// 	togglePause();
-		// 	return;
-		// }
+		if (event.x < btnSize) {
+			togglePause();
+			return;
+		}
 		if (event.x > mainStage.width/2 - btnSize/2 && event.x < mainStage.width/2 + btnSize/2) {
-			const soundBtn = document.querySelector('.sound-btn');
-			if (!soundBtn.classList.contains('disabled')) {
-				toggleSound();
-				soundBtn.classList.add('disabled');
-				setTimeout(() => {
-					soundBtn.style.display = 'none';
-				}, 1000);
-			}
+			toggleSound();
+			return;
+		}
+		if (event.x > mainStage.width - btnSize) {
+			toggleMenu();
 			return;
 		}
 	}
@@ -2083,7 +2081,11 @@ const soundManager = {
 	}
 };
 
+
+
+
 // Kick things off.
+
 function setLoadingStatus(status) {
 	document.querySelector('.loading-init__status').textContent = status;
 }
