@@ -2082,10 +2082,12 @@ function setLoadingStatus(status) {
 // CodePen profile header doesn't need audio, just initialize.
 if (IS_HEADER) {
 	init();
-} else
-{
-	setLoadingStatus('点燃引线中...');
-	setTimeout(() => {
+} else {
+	// Show "点击发射" and wait for user interaction
+	setLoadingStatus('点击发射');
+	document.querySelector('.loading-init').addEventListener('click', () => {
+		store.setState({ soundEnabled: true });
+		setLoadingStatus('');
 		soundManager.preload()
 		.then(
 			init,
