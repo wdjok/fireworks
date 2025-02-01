@@ -310,11 +310,10 @@ const appNodes = {
 	controls: '.controls',
 	menu: '.menu',
 	menuInnerWrap: '.menu__inner-wrap',
-	// pauseBtn: '.pause-btn',
-	// pauseBtnSVG: '.pause-btn use',
+	pauseBtn: '.pause-btn',
+	pauseBtnSVG: '.pause-btn use',
 	soundBtn: '.sound-btn',
 	soundBtnSVG: '.sound-btn use',
-	// settingsBtn: '.settings-btn',
 	shellType: '.shell-type',
 	shellTypeLabel: '.shell-type-label',
 	shellSize: '.shell-size',
@@ -351,10 +350,10 @@ if (!fullscreenEnabled()) {
 
 // First render is called in init()
 function renderApp(state) {
-	// const pauseBtnIcon = `#icon-${state.paused ? 'play' : 'pause'}`;
+	const pauseBtnIcon = `#icon-${state.paused ? 'play' : 'pause'}`;
 	const soundBtnIcon = `#icon-sound-${soundEnabledSelector() ? 'on' : 'off'}`;
-	// appNodes.pauseBtnSVG.setAttribute('href', pauseBtnIcon);
-	// appNodes.pauseBtnSVG.setAttribute('xlink:href', pauseBtnIcon);
+	appNodes.pauseBtnSVG.setAttribute('href', pauseBtnIcon);
+	appNodes.pauseBtnSVG.setAttribute('xlink:href', pauseBtnIcon);
 	appNodes.soundBtnSVG.setAttribute('href', soundBtnIcon);
 	appNodes.soundBtnSVG.setAttribute('xlink:href', soundBtnIcon);
 	appNodes.controls.classList.toggle('hide', state.menuOpen || state.config.hideControls);
@@ -1049,10 +1048,10 @@ function handlePointerStart(event) {
 	const btnSize = 50;
 	
 	if (event.y < btnSize) {
-		// if (event.x < btnSize) {
-		//     togglePause();
-		//     return;
-		// }
+		if (event.x < btnSize) {
+			togglePause();
+			return;
+		}
 		if (event.x > mainStage.width/2 - btnSize/2 && event.x < mainStage.width/2 + btnSize/2) {
 			toggleSound();
 			return;
