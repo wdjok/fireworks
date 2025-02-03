@@ -79,15 +79,36 @@ body {
   transform: translateZ(0);
 }
 
-.controls {
+.controls
+{
   position: absolute;
   top: 0;
   width: 100%;
   padding-bottom: 50px;
   display: flex;
   justify-content: space-between;
-  transition: opacity 0.3s, visibility 0.3s;
 }
+
+.controls
+{
+  position: absolute;
+  top: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  z-index: 0;
+  pointer-events: none;
+}
+.c
+{
+  position: absolute;
+  top: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 100;
+}
+
 @media (min-width: 840px) {
   .controls {
     visibility: visible;
@@ -95,97 +116,6 @@ body {
   .controls.hide:hover {
     opacity: 1;
   }
-}
-
-.menu {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.42);
-  transition: opacity 0.3s, visibility 0.3s;
-}
-.menu__inner-wrap {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  transition: opacity 0.3s;
-}
-.menu__header {
-  margin-top: auto;
-  margin-bottom: 8px;
-  padding-top: 16px;
-  font-size: 2em;
-  text-transform: uppercase;
-}
-.menu__subheader {
-  margin-bottom: auto;
-  padding-bottom: 12px;
-  font-size: 0.86em;
-  opacity: 0.8;
-}
-.menu form {
-  width: 100%;
-  max-width: 400px;
-  padding: 0 10px;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.menu .form-option {
-  display: flex;
-  align-items: center;
-  margin: 16px 0;
-  transition: opacity 0.3s;
-}
-.menu .form-option label {
-  display: block;
-  width: 50%;
-  padding-right: 12px;
-  text-align: right;
-  text-transform: uppercase;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-}
-.menu .form-option--select select {
-  display: block;
-  width: 50%;
-  height: 30px;
-  font-size: 1rem;
-  font-family: "Russo One", arial, sans-serif;
-  color: rgba(255, 255, 255, 0.5);
-  letter-spacing: 0.06em;
-  background-color: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-.menu .form-option--select select option {
-  background-color: black;
-}
-.menu .form-option--checkbox input {
-  display: block;
-  width: 26px;
-  height: 26px;
-  margin: 0;
-  opacity: 0.5;
-}
-@media (max-width: 840px) {
-  .menu .form-option select, .menu .form-option input {
-    outline: none;
-  }
-}
-
-.close-menu-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
 }
 
 .btn {
